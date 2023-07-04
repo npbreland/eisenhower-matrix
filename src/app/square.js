@@ -8,8 +8,8 @@ export default function Square({
   description,
   assignKey, 
   assignTaskToSquare, 
-  handleClickTask,
   setSelectedTask,
+  openCompleteTaskModal,
   tasks, 
   selectedTask,
   deleteTask,
@@ -79,7 +79,8 @@ export default function Square({
               task={task}
               selected={selectedTask}
               deleteTask={deleteTask}
-              onClick={() => handleClickTask(task.id)} 
+              openCompleteTaskModal={openCompleteTaskModal}
+              setSelectedTask={setSelectedTask} 
             />
           ))}
         </div>

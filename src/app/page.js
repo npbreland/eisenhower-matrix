@@ -44,13 +44,22 @@ export default function Home() {
   const [ tasks, setTasks ] = useState(initTasks);
   const [ selectedTask, setSelectedTask ] = useState(null);
   const [ addTaskModalIsOpen, setAddTaskModelIsOpen ] = useState(false);
+  const [ completeTaskModalIsOpen, setCompleteTaskModelIsOpen ] = useState(false);
 
-  const openModal = () => {
+  const openAddTaskModal = () => {
     setAddTaskModelIsOpen(true);
   };
 
-  const closeModal = () => {
+  const closeAddTaskModal = () => {
     setAddTaskModelIsOpen(false);
+  };
+
+  const openCompleteTaskModal = () => {
+    setCompleteTaskModelIsOpen(true);
+  };
+
+  const closeCompleteTaskModal = () => {
+    setCompleteTaskModelIsOpen(false);
   };
 
   const addTask = e => {
@@ -58,7 +67,16 @@ export default function Home() {
     const title = e.target.title.value;
     const newTask = { id: tasks.length + 1, category: 'delete', title };
     setTasks([ ...tasks, newTask ]);
-    closeModal();
+    closeAddTaskModal();
+  };
+
+  const completeTask = e => {
+    e.preventDefault();
+    const note = e.target.note.value;
+
+    // TODO: Send task with note to backend
+    deleteTask(selectedTask);
+    closeCompleteTaskModal();
   };
 
   const handleClickTask = id => {
@@ -78,6 +96,7 @@ export default function Home() {
   };
 
   const deleteTask = id => {
+    setSelectedTask(null);
     setTasks(tasks.filter(task => task.id !== id));
   };
 
@@ -89,18 +108,34 @@ export default function Home() {
   const delegateTasks = tasks.filter(task => task.category === 'delegate');
   const deleteTasks = tasks.filter(task => task.category === 'delete');
 
+  console.log(selectedTask);
+  const selectedTaskTitle = selectedTask ? tasks.find(task => task.id === selectedTask).title : '';
+
   return (
     <div id="page">
       <Modal
         isOpen={addTaskModalIsOpen}
-        onRequestClose={closeModal}
+        onRequestClose={closeAddTaskModal}
         style={modalStyles}
         contentLabel="Add Task"
       >
         <form onSubmit={e => addTask(e)}>
           <h2>Add Task</h2>
-          <input type="text" name="title" id="add-task-title" maxLength="50" />
-          <button id="add-task-button" type="submit">Add</button>
+          <input type="text" name="title" className="task-form-input" maxLength="50" />
+          <button className="task-form-button" type="submit">Add</button>
+        </form>
+      </Modal>
+      <Modal
+        isOpen={completeTaskModalIsOpen}
+        onRequestClose={closeCompleteTaskModal}
+        style={modalStyles}
+        contentLabel="Complete Task"
+      >
+        <form onSubmit={e => completeTask(e)}>
+          <h2>Complete Task:</h2>
+          <p>{selectedTaskTitle}</p>
+          <input type="text" name="note" className="task-form-input" placeholder="Optional note" maxLength="50" />
+          <button className="task-form-button" type="submit">Complete</button>
         </form>
       </Modal>
       <div className="header">
@@ -115,6 +150,7 @@ export default function Home() {
           tasks={doTasks}
           handleClickTask={handleClickTask}
           setSelectedTask={setSelectedTask}
+          openCompleteTaskModal={openCompleteTaskModal}
           selectedTask={selectedTask}
           deleteTask={deleteTask}
           assignTaskToSquare={() => assignSelectedTask(1)}
@@ -127,6 +163,7 @@ export default function Home() {
           handleClickTask={handleClickTask}
           setSelectedTask={setSelectedTask}
           selectedTask={selectedTask}
+          openCompleteTaskModal={openCompleteTaskModal}
           deleteTask={deleteTask}
           assignTaskToSquare={() => assignSelectedTask(2)}
         />
@@ -139,6 +176,7 @@ export default function Home() {
           tasks={delegateTasks}
           handleClickTask={handleClickTask}
           setSelectedTask={setSelectedTask}
+          openCompleteTaskModal={openCompleteTaskModal}
           selectedTask={selectedTask}
           deleteTask={deleteTask}
           assignTaskToSquare={() => assignSelectedTask(3)}
@@ -150,6 +188,7 @@ export default function Home() {
             tasks={deleteTasks}
             setSelectedTask={setSelectedTask}
             handleClickTask={handleClickTask}
+            openCompleteTaskModal={openCompleteTaskModal}
             selectedTask={selectedTask}
             deleteTask={deleteTask}
             assignTaskToSquare={() => assignSelectedTask(4)}
@@ -158,7 +197,7 @@ export default function Home() {
       <button
         style={{ display: selectedTask ? 'none' : 'block' }}
         className="fab" 
-        onClick={() => openModal()}>
+        onClick={() => openAddTaskModal()}>
         + Add Task
       </button>
       <div className="footer">

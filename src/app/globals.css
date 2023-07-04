@@ -122,11 +122,11 @@ body {
   justify-content: flex-end;
 }
 
-#add-task-title {
+.task-form-input {
   padding: 10px;
 }
 
-#add-task-button {
+.task-form-button {
   padding: 10px;
   cursor: pointer;
 }
