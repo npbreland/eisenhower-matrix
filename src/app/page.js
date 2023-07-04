@@ -21,6 +21,7 @@ const keyMap = {
 };
 
 export default function Home() {
+
   const [ tasks, setTasks ] = useState(initTasks);
   const [ selectedTask, setSelectedTask ] = useState(null);
   const [ focusedSquare, setFocusedSquare ] = useState(1);
@@ -34,15 +35,19 @@ export default function Home() {
   };
 
   const assignSelectedTask = category => {
+    console.log(category);
     if (selectedTask) {
-      const tasksCopy = [ ...tasks ];
-      const task = tasksCopy.find(task => task.id === selectedTask);
-      task.category = keyMap[category];
-      setTasks(tasksCopy);
+      console.log(selectedTask);
+      const task = tasks.find(task => task.id === selectedTask);
+      console.log(task);
+      const updatedTask = { ...task, category: keyMap[category] };
+      console.log(updatedTask);
+      setTasks(tasks.map(task => task.id === selectedTask ? updatedTask : task));
     }
   };
 
   useHotkeys(['1', '2', '3', '4'], e =>  assignSelectedTask(e.key));
+  useHotkeys('esc', () => setSelectedTask(null));
 
   return (
     <div>
@@ -55,9 +60,10 @@ export default function Home() {
           name="Do"
           focused={focusedSquare == 1}
           assignKey={1}
-          onClick={() => assignSelectedTask(1)}
+          assignTaskToSquare={() => assignSelectedTask(1)}
+          canBeTargeted={selectedTask !== null}
         >
-          {tasks.filter(task => task.category === 'do').map(task => (
+          {tasks.filter(task=>task.category==='do').map(task => (
             <Task 
               key={task.id}
               task={task}
@@ -70,9 +76,10 @@ export default function Home() {
           name="Schedule"
           focused={focusedSquare == 2}
           assignKey={2}
-          onClick={() => assignSelectedTask(2)}
+          assignTaskToSquare={() => assignSelectedTask(2)}
+          canBeTargeted={selectedTask !== null}
         >
-          {tasks.filter(task => task.category === 'schedule').map(task => (
+          {tasks.filter(task=>task.category==='schedule').map(task => (
             <Task
               key={task.id}
               task={task}
@@ -87,9 +94,10 @@ export default function Home() {
           name="Delegate"
           focused={focusedSquare == 3}
           assignKey={3}
-          onClick={() => assignSelectedTask(3)}
+          assignTaskToSquare={() => assignSelectedTask(3)}
+          canBeTargeted={selectedTask !== null}
         >
-          {tasks.filter(task => task.category === 'delegate').map(task => (
+          {tasks.filter(task=>task.category==='delegate').map(task => (
             <Task
               key={task.id}
               task={task}
@@ -102,9 +110,10 @@ export default function Home() {
             name="Delete"
             focused={focusedSquare == 4}
             assignKey={4}
-            onClick={() => assignSelectedTask(4)}
+            assignTaskToSquare={() => assignSelectedTask(4)}
+            canBeTargeted={selectedTask !== null}
         >
-          {tasks.filter(task => task.category === 'delete').map(task => (
+          {tasks.filter(task=>task.category==='delete').map(task => (
             <Task 
               key={task.id}
               task={task}
