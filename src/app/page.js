@@ -1,7 +1,7 @@
 'use client';
 
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import Square from './square';
 import Task from './task'
@@ -11,6 +11,12 @@ const initTasks = [
   { id: 2, category: 'schedule', title: 'Make dentist appointment' },
   { id: 3, category: 'delegate', title: 'Write emails to prospective clients' },
   { id: 4, category: 'delete', title: 'Meeting that could be an email' },
+  { id: 5, category: 'do', title: 'Buy groceries' },
+  { id: 6, category: 'schedule', title: 'Schedule oil change' },
+  { id: 7, category: 'delegate', title: 'Ask for help with project' },
+  { id: 8, category: 'delete', title: 'Meeting that could be an email' },
+  { id: 9, category: 'do', title: 'check smoke detector' },
+  { id: 10, category: 'schedule', title: 'something' },
 ];
 
 const keyMap = {
@@ -35,19 +41,20 @@ export default function Home() {
   };
 
   const assignSelectedTask = category => {
-    console.log(category);
     if (selectedTask) {
-      console.log(selectedTask);
       const task = tasks.find(task => task.id === selectedTask);
-      console.log(task);
       const updatedTask = { ...task, category: keyMap[category] };
-      console.log(updatedTask);
       setTasks(tasks.map(task => task.id === selectedTask ? updatedTask : task));
     }
   };
 
   useHotkeys(['1', '2', '3', '4'], e =>  assignSelectedTask(e.key));
   useHotkeys('esc', () => setSelectedTask(null));
+
+  const doTasks = tasks.filter(task => task.category === 'do');
+  const scheduleTasks = tasks.filter(task => task.category === 'schedule');
+  const delegateTasks = tasks.filter(task => task.category === 'delegate');
+  const deleteTasks = tasks.filter(task => task.category === 'delete');
 
   return (
     <div>
@@ -58,70 +65,38 @@ export default function Home() {
       <div className="row">
         <Square 
           name="Do"
-          focused={focusedSquare == 1}
           assignKey={1}
+          tasks={doTasks}
+          handleClickTask={handleClickTask}
+          selectedTask={selectedTask}
           assignTaskToSquare={() => assignSelectedTask(1)}
-          canBeTargeted={selectedTask !== null}
-        >
-          {tasks.filter(task=>task.category==='do').map(task => (
-            <Task 
-              key={task.id}
-              task={task}
-              selected={selectedTask}
-              onClick={() => handleClickTask(task.id)}
-            />
-          ))}
-        </Square>
+        />
         <Square 
           name="Schedule"
-          focused={focusedSquare == 2}
           assignKey={2}
+          tasks={scheduleTasks}
+          handleClickTask={handleClickTask}
+          selectedTask={selectedTask}
           assignTaskToSquare={() => assignSelectedTask(2)}
-          canBeTargeted={selectedTask !== null}
-        >
-          {tasks.filter(task=>task.category==='schedule').map(task => (
-            <Task
-              key={task.id}
-              task={task}
-              selected={selectedTask}
-              onClick={() => handleClickTask(task.id)} 
-            />
-          ))}
-        </Square>
+        />
       </div>
       <div className="row">
         <Square 
           name="Delegate"
-          focused={focusedSquare == 3}
           assignKey={3}
+          tasks={delegateTasks}
+          handleClickTask={handleClickTask}
+          selectedTask={selectedTask}
           assignTaskToSquare={() => assignSelectedTask(3)}
-          canBeTargeted={selectedTask !== null}
-        >
-          {tasks.filter(task=>task.category==='delegate').map(task => (
-            <Task
-              key={task.id}
-              task={task}
-              selected={selectedTask}
-              onClick={() => handleClickTask(task.id)} 
-            />
-          ))}
-        </Square>
+        />
         <Square
             name="Delete"
-            focused={focusedSquare == 4}
             assignKey={4}
+            tasks={deleteTasks}
+            handleClickTask={handleClickTask}
+            selectedTask={selectedTask}
             assignTaskToSquare={() => assignSelectedTask(4)}
-            canBeTargeted={selectedTask !== null}
-        >
-          {tasks.filter(task=>task.category==='delete').map(task => (
-            <Task 
-              key={task.id}
-              task={task}
-              selected={selectedTask}
-              onClick={() => handleClickTask(task.id)} 
-            />
-          ))}
-        </Square>
+        />
       </div>
       <div className="footer">
         <p>Made by <a href="https://github.com/npbreland">@npbreland</a></p>

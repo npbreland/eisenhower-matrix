@@ -1,11 +1,17 @@
+import Task from './task'
+
 export default function Square({ 
   name,
   assignKey, 
   focused, 
   assignTaskToSquare, 
-  children, 
-  canBeTargeted
+  handleClickTask,
+  tasks, 
+  selectedTask,
 }) {
+
+  const canBeTargeted = tasks.length < 10 && selectedTask !== null;
+
   return (
     <div className={ focused ? `square focused ${name}` : `square ${name}` }>
       <div className="square-content">
@@ -14,7 +20,14 @@ export default function Square({
           <div className="square-key">{assignKey}</div>
         </div>
         <div className="square-taskzone">
-          {children}
+          {tasks.map(task => (
+            <Task
+              key={task.id}
+              task={task}
+              selected={selectedTask}
+              onClick={() => handleClickTask(task.id)} 
+            />
+          ))}
         </div>
         <div 
           className="square-dropzone"
