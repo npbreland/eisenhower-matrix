@@ -4,13 +4,12 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useState } from 'react';
 
 import Square from './square';
-import Task from './task'
 
 const initTasks = [
   { id: 1, category: 'do', title: 'Do laundry' },
   { id: 2, category: 'schedule', title: 'Make dentist appointment' },
   { id: 3, category: 'delegate', title: 'Write emails to prospective clients' },
-  { id: 4, category: 'delete', title: 'Meeting that could be an email' },
+  { id: 4, category: 'delete', title: 'argue with neighbor' },
   { id: 5, category: 'do', title: 'Buy groceries' },
   { id: 6, category: 'schedule', title: 'Schedule oil change' },
   { id: 7, category: 'delegate', title: 'Ask for help with project' },
@@ -59,12 +58,13 @@ export default function Home() {
   return (
     <div>
       <div className="header">
-        <h1>Eisenhower To-Do</h1>
-        <p>To-do list using <a href="https://asana.com/resources/eisenhower-matrix">Eisenhower Matrix</a></p>
+        <h1>Eisenhower Matrix</h1>
+        <p>Task prioritization system used by <a href="https://en.wikipedia.org/wiki/Dwight_D._Eisenhower" target="_blank" rel="noreferrer">Ike</a></p>
       </div>
       <div className="row">
         <Square 
           name="Do"
+          description="Tasks with deadlines and consequences"
           assignKey={1}
           tasks={doTasks}
           handleClickTask={handleClickTask}
@@ -73,6 +73,7 @@ export default function Home() {
         />
         <Square 
           name="Schedule"
+          description="Tasks with unclear deadlines that contribute to long-term success"
           assignKey={2}
           tasks={scheduleTasks}
           handleClickTask={handleClickTask}
@@ -83,6 +84,7 @@ export default function Home() {
       <div className="row">
         <Square 
           name="Delegate"
+          description="Tasks that must get done but don't require your specific skill set"
           assignKey={3}
           tasks={delegateTasks}
           handleClickTask={handleClickTask}
@@ -91,6 +93,7 @@ export default function Home() {
         />
         <Square
             name="Delete"
+            description="Distractions and unnecessary tasks"
             assignKey={4}
             tasks={deleteTasks}
             handleClickTask={handleClickTask}
@@ -99,7 +102,8 @@ export default function Home() {
         />
       </div>
       <div className="footer">
-        <p>Made by <a href="https://github.com/npbreland">@npbreland</a></p>
+        <p>Made by <a href="https://github.com/npbreland" target="_blank" rel="noreferrer">@npbreland</a></p>
+        <p>Square descriptions text from <a href="https://asana.com/resources/eisenhower-matrix" rel="noreferrer" target="_blank">Asana</a></p>
       </div>
     </div>
   )

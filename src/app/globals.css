@@ -22,7 +22,7 @@ body {
   flex: 1 0 45%;
   margin: 10px;
   padding: 10px;
-  height: 530px;
+  height: 550px;
 }
 
 .square.Do {
@@ -56,6 +56,10 @@ body {
 .square-header h2 {
   margin: 0;
 }
+.square-footer {
+  margin-top: auto;
+  text-align: center;
+}
 
 .square-taskzone {
 }
@@ -68,6 +72,7 @@ body {
   justify-content: center;
   margin: 10px;
   border: 1px dashed;
+  cursor: pointer;
 }
 
 /*
