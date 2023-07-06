@@ -1,18 +1,19 @@
 import Task from './task'
 import Image from 'next/image'
 import { useHotkeys } from 'react-hotkeys-hook';
+import { capitalize } from './lib';
 
 
 export default function Square({ 
-  name,
+  category,
   description,
   assignKey, 
-  assignTaskToSquare, 
   setSelectedTask,
   openCompleteTaskModal,
   tasks, 
   selectedTask,
   deleteTask,
+  changeCategory
 }) {
 
   const canBeTargeted = tasks.length < 10 && selectedTask !== null;
@@ -64,18 +65,18 @@ export default function Square({
   });
 
   return (
-    <div className={`square ${name}`}>
+    <div className={`square ${category}`}>
       <div className="square-content">
         <div className="square-header">
-            <h2 style={{display: "inline-block"}}>{name}</h2>
+            <h2 style={{display: "inline-block"}}>{capitalize(category)}</h2>
           <div style={{display: selectedTask ? 'block' : 'none'}}>
             <KeyImage size={40} />
           </div>
         </div>
         <div className="square-taskzone">
-          {tasks.map(task => (
+          {tasks.map((task, key) => (
             <Task
-              key={task.id}
+              key={key}
               task={task}
               selected={selectedTask}
               deleteTask={deleteTask}
@@ -86,7 +87,7 @@ export default function Square({
         </div>
         <div 
           className="square-dropzone"
-          onClick={assignTaskToSquare}
+          onClick={() => changeCategory(selectedTask, category)}
           style={{ display: canBeTargeted ? 'flex': 'none'}}>
           <div>
           Press {<KeyImage className="key-image-inline" size={30} />} or click here to assign task to square

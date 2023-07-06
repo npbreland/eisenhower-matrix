@@ -12,6 +12,7 @@ export default function Task({
   const handleDeleteClick = e => {
     e.stopPropagation();
     deleteTask(task.id);
+    setSelectedTask(null);
   };
 
   const handleCompleteClick = e => {

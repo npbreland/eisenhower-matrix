@@ -25,19 +25,19 @@ body {
   height: 550px;
 }
 
-.square.Do {
+.square.do {
   background-color: #6aac8c;
 }
 
-.square.Schedule {
+.square.schedule {
   background-color: #e6886b;
 }
 
-.square.Delegate {
+.square.delegate {
   background-color: #5487a6;
 }
 
-.square.Delete {
+.square.delete {
   background-color: #f2696c;
 }
 

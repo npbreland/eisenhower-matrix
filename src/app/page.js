@@ -4,22 +4,19 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useState } from 'react';
 import Modal from 'react-modal';
 
+import { CreateTaskModal, CompleteTaskModal } from './modals';
+
+import {
+  useCreateEffect,
+  useReadEffect,
+  useUpdateEffect,
+  useDeleteEffect
+} from './hooks';
+import { createTaskId } from './lib';
+
 import Square from './square';
 
 Modal.setAppElement('#page');
-
-const initTasks = [
-  { id: 1, category: 'do', title: 'Do laundry' },
-  { id: 2, category: 'schedule', title: 'Make dentist appointment' },
-  { id: 3, category: 'delegate', title: 'Write emails to prospective clients' },
-  { id: 4, category: 'delete', title: 'argue with neighbor' },
-  { id: 5, category: 'do', title: 'Buy groceries' },
-  { id: 6, category: 'schedule', title: 'Schedule oil change' },
-  { id: 7, category: 'delegate', title: 'Ask for help with project' },
-  { id: 8, category: 'delete', title: 'Meeting that could be an email' },
-  { id: 9, category: 'do', title: 'check smoke detector' },
-  { id: 10, category: 'schedule', title: 'something' },
-];
 
 const keyMap = {
   1: 'do',
@@ -28,56 +25,71 @@ const keyMap = {
   4: 'delete',
 };
 
-const modalStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-  },
-};
-
 export default function Home() {
 
-  const [ tasks, setTasks ] = useState(initTasks);
+  const [ tasks, setTasks ] = useState([]);
   const [ selectedTask, setSelectedTask ] = useState(null);
-  const [ addTaskModalIsOpen, setAddTaskModelIsOpen ] = useState(false);
+  const [ createTaskModelIsOpen, setCreateTaskModelIsOpen ] = useState(false);
   const [ completeTaskModalIsOpen, setCompleteTaskModelIsOpen ] = useState(false);
 
-  const openAddTaskModal = () => {
-    setAddTaskModelIsOpen(true);
-  };
-
-  const closeAddTaskModal = () => {
-    setAddTaskModelIsOpen(false);
-  };
+  const [ tasksToAdd, setTasksToAdd] = useState([]);
+  const [ tasksToUpdate, setTasksToUpdate ] = useState([]);
+  const [ tasksToDelete, setTasksToDelete ] = useState([]);
 
   const openCompleteTaskModal = () => {
     setCompleteTaskModelIsOpen(true);
   };
 
-  const closeCompleteTaskModal = () => {
-    setCompleteTaskModelIsOpen(false);
+  const getSelectedTask = () => {
+    return tasks.find(task => task.id === selectedTask);
   };
 
-  const addTask = e => {
-    e.preventDefault();
-    const title = e.target.title.value;
-    const newTask = { id: tasks.length + 1, category: 'delete', title };
+  const createTask = title => {
+    const newTask = {
+      userId: 1,
+      timeCreated: Date.now(),
+      title,
+      category: 'delete',
+    };
+
+    newTask.id = createTaskId(newTask.userId, newTask.timeCreated);
+    setTasksToAdd([ ...tasksToAdd, newTask ]);
     setTasks([ ...tasks, newTask ]);
-    closeAddTaskModal();
   };
 
-  const completeTask = e => {
-    e.preventDefault();
-    const note = e.target.note.value;
+  const changeCategory = (taskId, category) => {
+    const tasksCopy = [ ...tasks ];
+    const task = tasksCopy.find(task => task.id === taskId);
+    task.category = category;
+    setTasks(tasksCopy);
 
-    // TODO: Send task with note to backend
-    deleteTask(selectedTask);
-    closeCompleteTaskModal();
+    task.updates = [
+      { attribute: 'category', value: category }
+    ];
+    setTasksToUpdate([ ...tasksToUpdate, task ]);
   };
+
+  const completeTask = (taskId, note) => {
+    const tasksCopy = [ ...tasks ];
+    const task = tasksCopy.find(task => task.id === taskId);
+
+    task.updates = [
+      { attribute: 'completed', value: true },
+      { attribute: 'note', value: note }
+    ];
+    setSelectedTask(null);
+    setTasks(tasks.filter(task => task.id !== taskId));
+    setTasksToUpdate([ ...tasksToUpdate, task ]);
+  };
+
+
+  const deleteTask = taskId => {
+    const task = tasks.find(task => task.id === taskId);
+    setSelectedTask(null);
+    setTasks(tasks.filter(task => task.id !== taskId));
+    setTasksToDelete([ ...tasksToDelete, task ]);
+  };
+
 
   const handleClickTask = id => {
     if (selectedTask === id) {
@@ -87,117 +99,103 @@ export default function Home() {
     }
   };
 
-  const assignSelectedTask = category => {
+  /* Hotkeys */
+  useHotkeys(['1', '2', '3', '4'], e => {
     if (selectedTask) {
-      const task = tasks.find(task => task.id === selectedTask);
-      const updatedTask = { ...task, category: keyMap[category] };
-      setTasks(tasks.map(task => task.id === selectedTask ? updatedTask : task));
+      const category = keyMap[e.key];
+      changeCategory(selectedTask, category);
     }
-  };
-
-  const deleteTask = id => {
-    setSelectedTask(null);
-    setTasks(tasks.filter(task => task.id !== id));
-  };
-
-  useHotkeys(['1', '2', '3', '4'], e =>  assignSelectedTask(e.key));
+  });
   useHotkeys('esc', () => setSelectedTask(null));
+  /* End Hotkeys */
+
+  /* Custom Effect Hooks */
+  useCreateEffect(tasksToAdd);
+  useReadEffect(setTasks);
+  useUpdateEffect(tasksToUpdate);
+  useDeleteEffect(tasksToDelete);
+  /* End Custom Effect Hooks */
 
   const doTasks = tasks.filter(task => task.category === 'do');
   const scheduleTasks = tasks.filter(task => task.category === 'schedule');
   const delegateTasks = tasks.filter(task => task.category === 'delegate');
   const deleteTasks = tasks.filter(task => task.category === 'delete');
 
-  console.log(selectedTask);
-  const selectedTaskTitle = selectedTask ? tasks.find(task => task.id === selectedTask).title : '';
-
   return (
     <div id="page">
-      <Modal
-        isOpen={addTaskModalIsOpen}
-        onRequestClose={closeAddTaskModal}
-        style={modalStyles}
-        contentLabel="Add Task"
-      >
-        <form onSubmit={e => addTask(e)}>
-          <h2>Add Task</h2>
-          <input type="text" name="title" className="task-form-input" maxLength="50" />
-          <button className="task-form-button" type="submit">Add</button>
-        </form>
-      </Modal>
-      <Modal
-        isOpen={completeTaskModalIsOpen}
-        onRequestClose={closeCompleteTaskModal}
-        style={modalStyles}
-        contentLabel="Complete Task"
-      >
-        <form onSubmit={e => completeTask(e)}>
-          <h2>Complete Task:</h2>
-          <p>{selectedTaskTitle}</p>
-          <input type="text" name="note" className="task-form-input" placeholder="Optional note" maxLength="50" />
-          <button className="task-form-button" type="submit">Complete</button>
-        </form>
-      </Modal>
+      <CreateTaskModal
+        isOpen={createTaskModelIsOpen} 
+        onRequestClose={() => setCreateTaskModelIsOpen(false)}
+        createTask={createTask}
+      />
+      {selectedTask && 
+        <CompleteTaskModal 
+          isOpen={completeTaskModalIsOpen}
+          onRequestClose={() => setCompleteTaskModelIsOpen(false)}
+          completeTask={completeTask}
+          task={getSelectedTask()}
+        />
+      }
       <div className="header">
         <h1>Eisenhower Matrix</h1>
         <p>Task prioritization system used by <a href="https://en.wikipedia.org/wiki/Dwight_D._Eisenhower" target="_blank" rel="noreferrer">Ike</a></p>
       </div>
       <div className="row">
         <Square 
-          name="Do"
-          description="Tasks with deadlines and consequences"
+          category="do"
           assignKey={1}
+          description="Tasks with deadlines and consequences"
           tasks={doTasks}
           handleClickTask={handleClickTask}
           setSelectedTask={setSelectedTask}
           openCompleteTaskModal={openCompleteTaskModal}
           selectedTask={selectedTask}
           deleteTask={deleteTask}
-          assignTaskToSquare={() => assignSelectedTask(1)}
+          changeCategory={changeCategory}
         />
         <Square 
-          name="Schedule"
-          description="Tasks with unclear deadlines that contribute to long-term success"
+          category="schedule"
           assignKey={2}
+          description="Tasks with unclear deadlines that contribute to long-term success"
           tasks={scheduleTasks}
           handleClickTask={handleClickTask}
           setSelectedTask={setSelectedTask}
           selectedTask={selectedTask}
           openCompleteTaskModal={openCompleteTaskModal}
           deleteTask={deleteTask}
-          assignTaskToSquare={() => assignSelectedTask(2)}
+          changeCategory={changeCategory}
         />
       </div>
       <div className="row">
         <Square 
-          name="Delegate"
-          description="Tasks that must get done but don't require your specific skill set"
+          category="delegate"
           assignKey={3}
+          description="Tasks that must get done but don't require your specific skill set"
           tasks={delegateTasks}
           handleClickTask={handleClickTask}
           setSelectedTask={setSelectedTask}
           openCompleteTaskModal={openCompleteTaskModal}
           selectedTask={selectedTask}
           deleteTask={deleteTask}
-          assignTaskToSquare={() => assignSelectedTask(3)}
+          changeCategory={changeCategory}
         />
         <Square
-            name="Delete"
-            description="Distractions and unnecessary tasks"
+            category="delete"
             assignKey={4}
+            description="Distractions and unnecessary tasks"
             tasks={deleteTasks}
             setSelectedTask={setSelectedTask}
             handleClickTask={handleClickTask}
             openCompleteTaskModal={openCompleteTaskModal}
             selectedTask={selectedTask}
             deleteTask={deleteTask}
-            assignTaskToSquare={() => assignSelectedTask(4)}
+            changeCategory={changeCategory}
         />
       </div>
       <button
         style={{ display: selectedTask ? 'none' : 'block' }}
         className="fab" 
-        onClick={() => openAddTaskModal()}>
+        onClick={() => setCreateTaskModelIsOpen(true)}>
         + Add Task
       </button>
       <div className="footer">
