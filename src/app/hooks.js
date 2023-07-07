@@ -4,7 +4,6 @@ import { createTaskId } from './lib';
 
 const SERVER_ENDPOINT = process.env.NEXT_PUBLIC_SERVER_ENDPOINT;
 
-console.log("Server endpoint: ", SERVER_ENDPOINT);
 export function useCreateEffect(tasks) {
   useEffect(() => {
     if (tasks.length === 0) return;
