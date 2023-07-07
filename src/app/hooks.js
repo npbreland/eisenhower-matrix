@@ -1,12 +1,8 @@
 // Desc: CRUD hooks for syncing tasks with server
 import { useEffect } from 'react';
 import { createTaskId } from './lib';
-import dotenv from 'dotenv';
-dotenv.config();
 
-
-console.log("Environment: ", process.env);
-const SERVER_ENDPOINT = process.env.SERVER_ENDPOINT;
+const SERVER_ENDPOINT = process.env.NEXT_PUBLIC_SERVER_ENDPOINT;
 
 console.log("Server endpoint: ", SERVER_ENDPOINT);
 export function useCreateEffect(tasks) {
