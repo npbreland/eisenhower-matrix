@@ -33,10 +33,13 @@ export function useReadEffect(callback) {
       const res = await fetch(SERVER_ENDPOINT);
       const data = await res.json();
       console.log(data);
-      const tasks = data.Items.map(task => {
-        task.id = createTaskId(task.userId, task.timeCreated);
-        return task;
-      });
+      const tasks = data.Items
+        .filter(task => task.completed !== true)
+        .map(task => {
+          task.id = createTaskId(task.userId, task.timeCreated);
+          return task;
+        });
+      
       callback(tasks);
     }
     readTasks();
