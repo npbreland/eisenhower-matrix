@@ -193,7 +193,6 @@ export default function Home() {
         />
       </div>
       <button
-        style={{ display: selectedTask ? 'none' : 'block' }}
         className="fab" 
         onClick={() => setCreateTaskModelIsOpen(true)}>
         + Add Task
